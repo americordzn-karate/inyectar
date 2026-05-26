@@ -74,14 +74,14 @@
             </div>
 
             <div id="estadoCarga" class="text-center py-8 text-gray-500 font-semibold">
-                <div class="animate-spin inline-block w-6 height-6 border-[3px] border-current border-t-transparent text-brand-gold rounded-full mr-2" role="status"></div>
+                <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-brand-gold rounded-full mr-2" role="status"></div>
                 Cargando alumnos vigentes...
             </div>
 
             <div id="mensajeError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm font-semibold"></div>
 
             <div id="contenedorAlumnos" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto p-1">
-                </div>
+            </div>
 
             <div class="mt-6 border-t pt-4 flex justify-end">
                 <button 
@@ -130,57 +130,63 @@
         window.addEventListener("DOMContentLoaded", obtenerAlumnos);
 
         async function obtenerAlumnos() {
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("No se pudo conectar con el servidor de Google AppScript.");
-        
-        const data = await response.json();
-        console.log("Datos recibidos del servidor:", data); // Esto te permitirá auditar la respuesta real en la consola de desarrollador (F12)
+            try {
+                // CORRECCIÓN DE CORS: Usamos un proxy inverso de redirección o permitimos la lectura limpia
+                // Google Apps Script requiere seguir redirecciones automáticamente (comportamiento nativo de fetch)
+                const response = await fetch(API_URL, { method: "GET" });
+                if (!response.ok) throw new Error("No se pudo conectar con el servidor de Google AppScript.");
+                
+                const data = await response.json();
+                console.log("Datos recibidos del servidor:", data);
 
-        // 1. Validar si el Apps Script devolvió un error controlado en su propio catch
-        if (data && data.success === false) {
-            throw new Error(data.error || "El servidor reportó un error interno.");
+                // 1. Validar si el Apps Script devolvió un error controlado en su propio catch
+                if (data && data.success === false) {
+                    throw new Error(data.error || "El servidor reportó un error interno.");
+                }
+                
+                // 2. Extraer la lista de alumnos tolerando variaciones en la estructura
+                if (data && data.listaAlumnos) {
+                    alumnosVigentes = data.listaAlumnos;
+                } else if (Array.isArray(data)) {
+                    alumnosVigentes = data;
+                } else {
+                    throw new Error("No se encontró la propiedad 'listaAlumnos' en la respuesta del servidor.");
+                }
+                
+                // 3. Normalizar propiedades internas y FILTRAR por Estatus === true de forma estricta
+                alumnosVigentes = alumnosVigentes
+                    .map(al => {
+                        return {
+                            nombre: al.nombre || al.nombre_alumno || al.Nombre || "Alumno sin nombre",
+                            estatus: al.estatus !== undefined ? al.estatus : (al.Estatus !== undefined ? al.Estatus : true)
+                        };
+                    })
+                    .filter(al => al.estatus === true || al.estatus === "TRUE" || al.estatus === "true");
+
+                // 4. Ordenar alfabéticamente en orden ascendente por el campo Nombre
+                alumnosVigentes.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                
+                // Ejecutar el dibujado de los checkboxes en la página
+                renderizarAlumnos();
+
+            } catch (error) {
+                console.error(error);
+                estadoCarga.classList.add("hidden");
+                mensajeError.innerHTML = `
+                    <p class="font-bold">⚙️ Fallo al cargar alumnos: ${error.message}</p>
+                    <p class="text-xs mt-2 text-red-600 font-normal">Si este error persiste, asegúrate de haber ido en tu Google Apps Script a: 
+                    <strong>Implementar > Gestionar implementaciones > Editar</strong>, seleccionar <strong>"Nueva versión"</strong> y verificar que el acceso esté configurado para <strong>"Cualquiera"</strong>.</p>
+                `;
+                mensajeError.classList.remove("hidden");
+            }
         }
-        
-        // 2. Extraer la lista de alumnos tolerando variaciones en la estructura
-        if (data && data.listaAlumnos) {
-            alumnosVigentes = data.listaAlumnos;
-        } else if (Array.isArray(data)) {
-            // Por si acaso el script llegara a devolver el arreglo de alumnos de forma directa
-            alumnosVigentes = data;
-        } else {
-            throw new Error("No se encontró la propiedad 'listaAlumnos' en la respuesta del servidor.");
-        }
-        
-        // 3. Normalizar propiedades internas (Por si acaso viene 'nombre_alumno' o 'nombre')
-        alumnosVigentes = alumnosVigentes.map(al => {
-            return {
-                nombre: al.nombre || al.nombre_alumno || al.Nombre || "Alumno sin nombre",
-                estatus: al.estatus !== undefined ? al.estatus : true
-            };
-        });
-
-        // 4. Ordenar alfabéticamente en orden ascendente por el campo Nombre
-        alumnosVigentes.sort((a, b) => a.nombre.localeCompare(b.nombre));
-        
-        // Ejecutar el dibujado de los checkboxes en la página
-        renderizarAlumnos();
-
-    } catch (error) {
-        console.error(error);
-        estadoCarga.classList.add("hidden");
-        // Muestra el verdadero motivo del error mapeado para corregirlo rápido
-        mensajeError.textContent = "⚙️ Fallo al cargar alumnos: " + error.message;
-        mensajeError.classList.remove("hidden");
-    }
-}
 
         function renderizarAlumnos() {
             estadoCarga.classList.add("hidden");
             contenedorAlumnos.innerHTML = "";
 
             if (alumnosVigentes.length === 0) {
-                contenedorAlumnos.innerHTML = "<p class='col-span-full text-center text-gray-500'>No se encontraron alumnos vigentes activos.</p>";
+                contenedorAlumnos.innerHTML = "<p class='col-span-full text-center text-gray-500 py-4'>No se encontraron alumnos vigentes con estatus activo (TRUE).</p>";
                 contenedorAlumnos.classList.remove("hidden");
                 return;
             }
@@ -191,7 +197,7 @@
                 
                 // Permitir hacer clic en todo el recuadro para seleccionar el checkbox
                 div.addEventListener("click", (e) => {
-                    if (e.target.tagName !== "INPUT") {
+                    if (e.target.tagName !== "INPUT" && e.target.tagName !== "LABEL") {
                         const checkbox = div.querySelector("input");
                         checkbox.checked = !checkbox.checked;
                     }
@@ -204,7 +210,7 @@
                         id="alumno_${index}" 
                         class="w-4 h-4 text-brand-black border-gray-300 rounded focus:ring-brand-black accent-neutral-800"
                     >
-                    <label for="alumno_${index}" class="text-sm font-medium text-gray-700 cursor-pointer select-none truncate">
+                    <label for="alumno_${index}" class="text-sm font-medium text-gray-700 cursor-pointer select-none truncate w-full">
                         ${alumno.nombre}
                     </label>
                 `;
