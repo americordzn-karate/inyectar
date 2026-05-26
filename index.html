@@ -1,216 +1,385 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración Masiva de Puntos - Senshi-Kan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Asignar Retos | Senshi-Kan</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#111;
+    color:white;
+    padding:20px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:25px;
+    color:#f7c600;
+}
+
+.card{
+    background:#1b1b1b;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+    border:1px solid #333;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:bold;
+}
+
+input[type="text"],
+input[type="number"]{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:20px;
+    font-size:16px;
+}
+
+.search-box{
+    margin-bottom:20px;
+}
+
+.alumnos-container{
+    max-height:450px;
+    overflow-y:auto;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:10px;
+    background:#121212;
+}
+
+.alumno-item{
+    padding:10px;
+    border-bottom:1px solid #2b2b2b;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.alumno-item:last-child{
+    border-bottom:none;
+}
+
+.alumno-item:hover{
+    background:#1d1d1d;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-primary{
+    background:#f7c600;
+    color:#000;
+}
+
+.btn-primary:hover{
+    background:#ffd93d;
+}
+
+.btn-portal{
+    background:#00c853;
+    color:white;
+    margin-top:15px;
+}
+
+.btn-portal:hover{
+    background:#00e676;
+}
+
+.loading{
+    text-align:center;
+    padding:20px;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.modal-content{
+    background:#1e1e1e;
+    padding:30px;
+    border-radius:15px;
+    width:90%;
+    max-width:400px;
+    text-align:center;
+    border:1px solid #444;
+}
+
+.modal-content h2{
+    margin-bottom:15px;
+    color:#f7c600;
+}
+
+.modal-content p{
+    margin-bottom:20px;
+}
+
+.counter{
+    margin-bottom:15px;
+    color:#bbb;
+    font-size:14px;
+}
+
+</style>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen flex flex-col items-center p-4 md:p-8">
 
-    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-        <div class="bg-red-700 text-white p-6 text-center shadow-md">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-wide uppercase">Academia Senshi-Kan</h1>
-            <p class="text-sm md:text-base text-red-100 mt-1">Panel de Administración Masiva de Puntos a Retos</p>
+<body>
+
+<div class="container">
+
+    <h1>Asignar Retos a Alumnos</h1>
+
+    <div class="card">
+
+        <label>Nombre del reto</label>
+        <input type="text" id="nombreReto" placeholder="Ejemplo: Reto de Flexiones">
+
+        <label>Puntos</label>
+        <input type="number" id="puntos" placeholder="Ejemplo: 50">
+
+        <div class="search-box">
+            <label>Buscar alumno</label>
+            <input type="text" id="buscarAlumno" placeholder="Escribe un nombre...">
         </div>
 
-        <form id="formRetos" onsubmit="enviarPuntos(event)" class="p-6 space-y-6">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                <div>
-                    <label for="nombreReto" class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Reto</label>
-                    <input type="text" id="nombreReto" required placeholder="Ej. PUNCH REACCIÓN, KATA MAESTRO" 
-                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition uppercase">
-                </div>
-                <div>
-                    <label for="puntos" class="block text-sm font-semibold text-gray-700 mb-1">Puntos a Asignar</label>
-                    <input type="number" id="puntos" required min="1" placeholder="Ej. 3" 
-                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition">
-                </div>
-            </div>
-
-            <div>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 mb-4 gap-2">
-                    <h2 class="text-lg font-bold text-gray-800">Seleccionar Alumnos Activos</h2>
-                    <label class="inline-flex items-center space-x-2 text-sm text-gray-600 font-medium cursor-pointer bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition">
-                        <input type="checkbox" id="seleccionarTodosCb" onchange="seleccionarTodos(this)" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                        <span>Seleccionar Todos</span>
-                    </label>
-                </div>
-
-                <div id="listaAlumnos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto p-1">
-                    <div class="col-span-full text-center py-8 text-gray-500 animate-pulse">
-                        Cargando listado oficial de alumnos desde Google Sheets...
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-4 border-t border-gray-100 flex justify-end">
-                <button type="submit" id="btnEnviar" 
-                        class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform active:scale-95 flex items-center justify-center gap-2">
-                    Inyectar Puntos Masivos
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <div id="modalExito" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 animate-fade-in">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full text-center transform transition-all border border-gray-100">
-            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">¡Proceso Completado!</h3>
-            <p id="mensajeExito" class="text-gray-600 font-medium mb-6"></p>
-            
-            <a href="https://americordzn-karate.github.io/retos/" 
-               class="inline-block w-full py-3 bg-gray-900 hover:bg-black text-white font-bold rounded-xl shadow-md transition-colors duration-200 uppercase tracking-wide text-sm">
-                Volver al Portal
-            </a>
+        <div class="counter" id="contadorSeleccionados">
+            0 alumnos seleccionados
         </div>
+
+        <div class="alumnos-container" id="listaAlumnos">
+            <div class="loading">Cargando alumnos...</div>
+        </div>
+
+        <br>
+
+        <button class="btn-primary" onclick="agregarPuntos()">
+            Agregar puntos
+        </button>
+
     </div>
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwX5w8iiwkJVbGtpz-5f20U9jue2MC0vouE3blkHXo9CIMqg9bvCZrAYE8WKxH4gXGWzg/exec";
-        let alumnosFiltrados = [];
+</div>
 
-        // Inicializar la carga automática al abrir la página
-        document.addEventListener("DOMContentLoaded", obtenerAlumnos);
+<div class="modal" id="modalExito">
+    <div class="modal-content">
 
-        // 1. Obtener listado de alumnos (GET)
-        async function obtenerAlumnos() {
-            const contenedor = document.getElementById("listaAlumnos");
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'GET',
-                    mode: 'cors',
-                    redirect: 'follow'
-                });
+        <h2>Proceso completado</h2>
 
-                if (!response.ok) throw new Error("No se pudo conectar de manera estable con el Apps Script.");
-                
-                const data = await response.json();
-                const listaRaw = data.listaAlumnos || data.listaalumnos || [];
+        <p id="mensajeExito"></p>
 
-                // Filtrar por Estatus === TRUE y ordenar alfabéticamente de forma ascendente (A-Z)
-                alumnosFiltrados = listaRaw
-                    .filter(alumno => {
-                        if (!alumno.nombre) return false;
-                        const estatusStr = String(alumno.estatus).toUpperCase().trim();
-                        return estatusStr === "TRUE" || alumno.estatus === true;
-                    })
-                    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+        <button class="btn-portal" onclick="irPortal()">
+            Ir al portal
+        </button>
 
-                renderizarAlumnos();
+    </div>
+</div>
 
-            } catch (error) {
-                console.error("Error cargando alumnos:", error);
-                contenedor.innerHTML = `
-                    <div class="col-span-full bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-center font-medium">
-                        Fallo al cargar alumnos: ${error.message}
-                    </div>`;
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbwX5w8iiwkJVbGtpz-5f20U9jue2MC0vouE3blkHXo9CIMqg9bvCZrAYE8WKxH4gXGWzg/exec";
+
+let alumnos = [];
+
+async function cargarAlumnos(){
+
+    try{
+
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if(!data.alumnos){
+            throw new Error("No se pudieron cargar alumnos");
+        }
+
+        alumnos = data.alumnos.sort((a,b)=>
+            a.nombre.localeCompare(b.nombre,'es',{sensitivity:'base'})
+        );
+
+        renderizarAlumnos(alumnos);
+
+    }catch(error){
+
+        document.getElementById("listaAlumnos").innerHTML = `
+            <div class="loading">
+                Error al cargar alumnos
+            </div>
+        `;
+
+        console.error(error);
+    }
+}
+
+function renderizarAlumnos(lista){
+
+    const container = document.getElementById("listaAlumnos");
+
+    if(lista.length === 0){
+
+        container.innerHTML = `
+            <div class="loading">
+                No se encontraron alumnos
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = "";
+
+    lista.forEach(alumno=>{
+
+        const div = document.createElement("div");
+        div.className = "alumno-item";
+
+        div.innerHTML = `
+            <input type="checkbox" class="checkAlumno" value="${alumno.nombre}">
+            <span>${alumno.nombre}</span>
+        `;
+
+        container.appendChild(div);
+    });
+
+    actualizarContador();
+
+    document.querySelectorAll(".checkAlumno").forEach(check=>{
+        check.addEventListener("change", actualizarContador);
+    });
+}
+
+function actualizarContador(){
+
+    const seleccionados = document.querySelectorAll(".checkAlumno:checked").length;
+
+    document.getElementById("contadorSeleccionados").innerText =
+        seleccionados + " alumnos seleccionados";
+}
+
+document.getElementById("buscarAlumno").addEventListener("input", function(){
+
+    const texto = this.value.toLowerCase();
+
+    const filtrados = alumnos.filter(alumno =>
+        alumno.nombre.toLowerCase().includes(texto)
+    );
+
+    renderizarAlumnos(filtrados);
+});
+
+async function agregarPuntos(){
+
+    const nombreReto = document.getElementById("nombreReto").value.trim();
+    const puntos = document.getElementById("puntos").value.trim();
+
+    const checks = document.querySelectorAll(".checkAlumno:checked");
+
+    if(nombreReto === ""){
+        alert("Introduce el nombre del reto");
+        return;
+    }
+
+    if(puntos === ""){
+        alert("Introduce los puntos");
+        return;
+    }
+
+    if(checks.length === 0){
+        alert("Selecciona al menos un alumno");
+        return;
+    }
+
+    const boton = document.querySelector(".btn-primary");
+
+    boton.disabled = true;
+    boton.innerText = "Procesando...";
+
+    let enviados = 0;
+
+    try{
+
+        for(const check of checks){
+
+            const body = {
+                nombre_alumno: check.value,
+                nombre_reto: nombreReto,
+                puntos: puntos
+            };
+
+            const response = await fetch(API_URL,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify(body)
+            });
+
+            const result = await response.json();
+
+            if(result.success){
+                enviados++;
             }
         }
 
-        // 2. Pintar la lista con checkboxes interactivos en pantalla
-        function renderizarAlumnos() {
-            const contenedor = document.getElementById("listaAlumnos");
-            
-            if (alumnosFiltrados.length === 0) {
-                contenedor.innerHTML = `
-                    <div class="col-span-full text-center py-6 text-gray-500 font-medium">
-                        No se encontraron alumnos activos (Estatus TRUE) en la base de datos.
-                    </div>`;
-                return;
-            }
+        document.getElementById("mensajeExito").innerText =
+            "Puntos agregados exitosamente a " + enviados + " alumnos";
 
-            contenedor.innerHTML = alumnosFiltrados.map((alumno, index) => `
-                <label class="flex items-center space-x-3 p-3.5 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 hover:border-red-300 cursor-pointer transition duration-150 group">
-                    <input type="checkbox" value="${alumno.nombre.trim()}" class="select-alumno w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 cursor-pointer">
-                    <span class="text-gray-700 font-semibold group-hover:text-gray-900 transition-colors text-sm">${alumno.nombre}</span>
-                </label>
-            `).join('');
-        }
+        document.getElementById("modalExito").style.display = "flex";
 
-        // 3. Función auxiliar para seleccionar o deseleccionar todo el bloque
-        function seleccionarTodos(source) {
-            const checkboxes = document.querySelectorAll('.select-alumno');
-            checkboxes.forEach(cb => cb.checked = source.checked);
-        }
+    }catch(error){
 
-        // 4. Inyección Masiva de Puntos (POST individual en paralelo)
-        async function enviarPuntos(event) {
-            event.preventDefault();
+        alert("Ocurrió un error al agregar puntos");
+        console.error(error);
 
-            const nombreReto = document.getElementById("nombreReto").value.trim();
-            const puntos = document.getElementById("puntos").value.trim();
-            const checkboxesSeleccionados = document.querySelectorAll('.select-alumno:checked');
-            const totalSeleccionados = checkboxesSeleccionados.length;
+    }finally{
 
-            if (totalSeleccionados === 0) {
-                alert("Por favor, selecciona al menos un alumno de la lista.");
-                return;
-            }
+        boton.disabled = false;
+        boton.innerText = "Agregar puntos";
+    }
+}
 
-            // Bloquear botón y mostrar spinner de procesamiento
-            const btnEnviar = document.getElementById("btnEnviar");
-            const originalBtnContent = btnEnviar.innerHTML;
-            btnEnviar.disabled = true;
-            btnEnviar.innerHTML = `
-                <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg> Guardando en la Base de Datos...`;
+function irPortal(){
+    window.location.href = "https://americordzn-karate.github.io/retos/";
+}
 
-            try {
-                // Crear arreglos de promesas para mandar las peticiones concurrentemente
-                const promesasEnvio = Array.from(checkboxesSeleccionados).map(cb => {
-                    const alumno = cb.value;
+cargarAlumnos();
 
-                    // Formato clave-valor estándar requerido por e.parameter de tu doPost
-                    const dataForm = new URLSearchParams();
-                    dataForm.append("nombre_alumno", alumno);
-                    dataForm.append("nombre_reto", nombreReto);
-                    dataForm.append("puntos", puntos);
+</script>
 
-                    return fetch(API_URL, {
-                        method: 'POST',
-                        mode: 'no-cors', // Evita errores de CORS en peticiones de escritura a Google Script
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: dataForm
-                    });
-                });
-
-                // Esperar a que terminen todas las peticiones
-                await Promise.all(promesasEnvio);
-
-                // Levantar y desplegar la ventana con la frase exacta solicitada
-                const modal = document.getElementById("modalExito");
-                const mensaje = document.getElementById("mensajeExito");
-                
-                // Formato idéntico al solicitado: "Puntos agregados exitosamente a " + número + "alumnos"
-                mensaje.innerText = "Puntos agregados exitosamente a " + totalSeleccionados + "alumnos";
-                
-                modal.classList.remove("hidden");
-                modal.classList.add("flex");
-
-                // Limpiar entradas del formulario y desmarcar todo
-                document.getElementById("formRetos").reset();
-                document.getElementById("seleccionarTodosCb").checked = false;
-                renderizarAlumnos();
-
-            } catch (error) {
-                console.error("Error guardando los puntos:", error);
-                alert("Ocurrió un inconveniente al guardar los puntos: " + error.message);
-            } finally {
-                btnEnviar.disabled = false;
-                btnEnviar.innerHTML = originalBtnContent;
-            }
-        }
-    </script>
 </body>
 </html>
+```
