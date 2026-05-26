@@ -3,132 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración Masiva de Puntos - Senshi-Kan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Senshi-Kan - Administración Masiva de Puntos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        .bg-brand-black { background-color: #1a1a1a; }
-        .text-brand-gold { color: #d4af37; }
-        .bg-brand-gold { background-color: #d4af37; }
-        .border-brand-gold { border-color: #d4af37; }
-        
-        /* Estilos para el modal/ventana flotante */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.75);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
+        /* Estilos personalizados para scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col justify-between">
 
-    <header class="bg-brand-black text-white py-6 shadow-md text-center border-b-4 border-brand-gold">
-        <h1 class="text-3xl font-bold tracking-wider text-brand-gold text-center">PANEL DE ADMINISTRACIÓN</h1>
-        <p class="text-gray-400 text-sm mt-1">Asignación Masiva de Puntos a Retos</p>
+    <header class="bg-gray-800 border-b border-gray-700 p-4 shadow-md">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-red-500 tracking-wider flex items-center gap-2">
+                <span>🥋</span> SENSHI-KAN
+            </h1>
+            <span class="bg-red-900/40 text-red-400 border border-red-700/50 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+                Panel de Control Masivo
+            </span>
+        </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-8">
-        <section class="bg-white rounded-lg p-6 shadow-sm mb-6 border-t-4 border-brand-black">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                ⚙️ <span class="tracking-wide">CONFIGURACIÓN DEL PUNTAJE</span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="nombreReto" class="block text-xs font-bold text-gray-700 uppercase mb-1 tracking-wider">Nombre del Reto:</label>
-                    <input 
-                        type="text" 
-                        id="nombreReto" 
-                        placeholder="Ej. PUNCH, RELACIONA PALABRAS" 
-                        class="w-full border-2 border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-brand-black transition-colors"
-                    >
-                </div>
-                <div>
-                    <label for="puntosReto" class="block text-xs font-bold text-gray-700 uppercase mb-1 tracking-wider">Puntos a Asignar:</label>
-                    <input 
-                        type="number" 
-                        id="puntosReto" 
-                        placeholder="Ej. 3" 
-                        min="0"
-                        class="w-full border-2 border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-brand-black transition-colors"
-                    >
-                </div>
-            </div>
-        </section>
-
-        <section class="bg-white rounded-lg p-6 shadow-sm border-t-4 border-brand-gold">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b pb-3">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    🥋 <span class="tracking-wide">SELECCIÓN DE ALUMNOS</span>
+    <main class="max-w-5xl mx-auto p-4 md:p-6 w-full flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <section class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl flex flex-col justify-between h-fit gap-4 md:col-span-1">
+            <div>
+                <h2 class="text-lg font-bold border-b border-gray-700 pb-2 mb-4 text-gray-200 flex items-center gap-2">
+                    📝 <span>Datos del Reto</span>
                 </h2>
-                <div class="flex gap-2">
-                    <button id="btnSeleccionarTodos" class="text-xs font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-300 transition-colors">Seleccionar Todos</button>
-                    <button id="btnDesmarcarTodos" class="text-xs font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-300 transition-colors">Desmarcar Todos</button>
+                
+                <div class="mb-4">
+                    <label for="nombreReto" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Nombre del Reto</label>
+                    <input type="text" id="nombreReto" placeholder="Ej. ASISTENCIA, EXAMEN, PUNCH" 
+                           class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors uppercase">
+                </div>
+
+                <div class="mb-2">
+                    <label for="puntosReto" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Puntos a Asignar</label>
+                    <input type="number" id="puntosReto" placeholder="Ej. 5" min="0"
+                           class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors">
                 </div>
             </div>
 
-            <div id="estadoCarga" class="text-center py-8 text-gray-500 font-semibold">
-                <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-brand-gold rounded-full mr-2" role="status"></div>
-                Cargando alumnos vigentes...
+            <button id="btnInyectar" onclick="inyectarPuntos Masivos()" 
+                    class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-red-900/30 transition-all transform active:scale-[0.98] mt-4 flex justify-center items-center gap-2 cursor-pointer">
+                🚀 Inyectar Puntos
+            </button>
+        </section>
+
+        <section class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-xl md:col-span-2 flex flex-col h-[65vh] md:h-[75vh]">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-4">
+                <h2 class="text-lg font-bold text-gray-200 flex items-center gap-2">
+                    👥 <span>Listado de Alumnos</span>
+                </h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="seleccionarTodos(true)" class="text-xs text-red-400 hover:text-red-300 font-medium transition-colors">Seleccionar Todos</button>
+                    <span class="text-gray-600">|</span>
+                    <button onclick="seleccionarTodos(false)" class="text-xs text-gray-400 hover:text-gray-300 font-medium transition-colors">Limpiar</button>
+                </div>
             </div>
 
-            <div id="mensajeError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm font-semibold"></div>
-
-            <div id="contenedorAlumnos" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto p-1">
+            <div id="loadingState" class="flex-grow flex flex-col justify-center items-center gap-3">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-500"></div>
+                <p class="text-gray-400 text-sm">Obteniendo base de datos desde Google Sheets...</p>
             </div>
 
-            <div class="mt-6 border-t pt-4 flex justify-end">
-                <button 
-                    id="btnGuardarPuntos" 
-                    disabled
-                    class="bg-brand-black text-brand-gold font-bold py-3 px-6 rounded tracking-wide border border-brand-gold opacity-50 cursor-not-allowed hover:bg-neutral-800 transition-all uppercase text-sm"
-                >
-                    Inyectar Puntos Masivamente
-                </button>
+            <div id="listaAlumnosContainer" class="flex-grow overflow-y-auto pr-1 hidden">
+                <div id="listaAlumnos" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-3 mt-4 flex justify-between items-center text-xs text-gray-400">
+                <p id="contadorSeleccion">Alumnos seleccionados: 0</p>
+                <p id="totalAlumnos">Total en lista: 0</p>
             </div>
         </section>
+
     </main>
 
-    <div id="modalExito" class="hidden modal-overlay">
-        <div class="bg-white rounded-lg p-6 shadow-xl max-w-md w-full mx-4 text-center border-t-4 border-brand-gold">
-            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-3xl">🏆</span>
+    <div id="modalExito" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="bg-gray-800 border border-gray-700 p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl text-center transform scale-95 transition-transform duration-300" id="modalContent">
+            <div class="w-16 h-16 bg-green-900/30 text-green-400 border border-green-700/50 rounded-full flex justify-center items-center text-3xl mx-auto mb-4 animate-bounce">
+                ✓
             </div>
-            <h3 id="modalMensaje" class="text-xl font-bold text-gray-800 mb-6">Puntos agregados exitosamente</h3>
-            <a 
-                href="https://americordzn-karate.github.io/retos/" 
-                class="block w-full text-center bg-brand-black text-brand-gold font-bold py-3 px-4 rounded tracking-wide border border-brand-gold hover:bg-neutral-800 transition-colors"
-            >
-                Volver al Portal de Retos
-            </a>
+            <h3 class="text-xl font-bold text-white mb-2">¡Proceso Finalizado!</h3>
+            <p id="mensajeModal" class="text-gray-300 text-sm mb-6 leading-relaxed">Puntos agregados exitosamente.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="cerrarModalYLimpiar()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer text-sm">
+                    Asignar Otra Puntuación
+                </button>
+                <a href="https://americordzn-karate.github.io/retos/" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors inline-flex justify-center items-center gap-2 text-sm">
+                    Ir al Portal Raíz 🥋
+                </a>
+            </div>
         </div>
     </div>
 
+    <footer class="bg-gray-950 text-gray-500 text-center py-3 text-xs border-t border-gray-900">
+        &copy; 2026 Academia de Karate Senshi-Kan. Todos los derechos reservados.
+    </footer>
+
     <script>
+        // URL de tu Web App de Google Apps Script
         const API_URL = "https://script.google.com/macros/s/AKfycbwX5w8iiwkJVbGtpz-5f20U9jue2MC0vouE3blkHXo9CIMqg9bvCZrAYE8WKxH4gXGWzg/exec";
         
-        let alumnosVigentes = [];
+        let arregloAlumnos = [];
 
-        // Elementos de la interfaz
-        const contenedorAlumnos = document.getElementById("contenedorAlumnos");
-        const estadoCarga = document.getElementById("estadoCarga");
-        const mensajeError = document.getElementById("mensajeError");
-        const btnGuardarPuntos = document.getElementById("btnGuardarPuntos");
-        const nombreRetoInput = document.getElementById("nombreReto");
-        const puntosRetoInput = document.getElementById("puntosReto");
-        
-        const modalExito = document.getElementById("modalExito");
-        const modalMensaje = document.getElementById("modalMensaje");
-
-        // Cargar los alumnos al inicializar la página
+        // Inicializar la carga al estar listo el DOM
         window.addEventListener("DOMContentLoaded", obtenerAlumnos);
 
+        // 1. Obtener listado desde el Backend
         async function obtenerAlumnos() {
             try {
                 const response = await fetch(API_URL, {
@@ -137,166 +133,61 @@
                     redirect: 'follow'
                 });
 
-                if (!response.ok) {
-                    throw new Error("No se pudo conectar con el servidor de Google Apps Script.");
-                }
+                if (!response.ok) throw new Error("No se pudo conectar con el servidor de Google AppScript.");
 
                 const data = await response.json();
-                console.log("Datos recibidos de forma segura:", data);
+                console.log("Datos del backend recibidos:", data);
 
                 if (data && data.success === false) {
-                    throw new Error(data.error || "El servidor reportó un error interno.");
+                    throw new Error(data.error || "El servidor reportó un error de lectura.");
                 }
 
-                let alumnos = null;
-                if (data) {
-                    alumnos = data.listaAlumnos || data.listaalumnos || data.Alumnos || data.alumnos;
+                // Extraer lista tolerando mayúsculas/minúsculas de la propiedad
+                const rawAlumnos = data.listaAlumnos || data.listaalumnos;
+
+                if (!rawAlumnos || !Array.isArray(rawAlumnos)) {
+                    throw new Error("No se encontró un arreglo de alumnos válido en el servidor.");
                 }
 
-                if (!alumnos || !Array.isArray(alumnos)) {
-                    throw new Error("No se encontró la propiedad 'listaAlumnos' o el formato no es válido.");
+                // NUEVA LÓGICA: Se remueve el filtro de estatus para enlistar a TODOS los alumnos.
+                // Simplemente ordenamos alfabéticamente (A-Z) de forma nativa por nombre.
+                arregloAlumnos = rawAlumnos
+                    .filter(al => al.nombre && al.nombre.toString().trim() !== "")
+                    .sort((a, b) => a.nombre.toString().localeCompare(b.nombre.toString()));
+
+                if (arregloAlumnos.length === 0) {
+                    document.getElementById("loadingState").innerHTML = `
+                        <p class="text-amber-500 font-semibold">⚠️ No se encontraron alumnos registrados en la hoja de cálculo.</p>
+                    `;
+                    return;
                 }
 
-                // Filtrar alumnos activos (Estatus == TRUE) y ordenarlos alfabéticamente de la A a la Z
-                alumnosVigentes = alumnos
-                    .filter(a => {
-                        const estatusVal = a.estatus !== undefined ? a.estatus : a.Estatus;
-                        return estatusVal === true || String(estatusVal).toUpperCase() === 'TRUE';
-                    })
-                    .map(a => ({
-                        nombre: a.nombre || a.Nombre
-                    }))
-                    .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
-
-                // Ejecutamos la renderización visual adaptada a Tailwind
+                // Renderizar la interfaz
                 renderizarAlumnos();
 
             } catch (error) {
-                console.error("Error detallado en la carga:", error);
-                estadoCarga.classList.add("hidden");
-                mensajeError.textContent = "Error al cargar alumnos: " + error.message;
-                mensajeError.classList.remove("hidden");
-            }
-        }
-
-        function renderizarAlumnos() {
-            estadoCarga.classList.add("hidden");
-            contenedorAlumnos.innerHTML = "";
-
-            if (alumnosVigentes.length === 0) {
-                contenedorAlumnos.innerHTML = "<p class='col-span-full text-center text-gray-500 py-4'>No se encontraron alumnos vigentes con estatus activo (TRUE).</p>";
-                contenedorAlumnos.classList.remove("hidden");
-                return;
-            }
-
-            alumnosVigentes.forEach((alumno, index) => {
-                const div = document.createElement("div");
-                div.className = "flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-colors cursor-pointer";
-                
-                // Permitir hacer clic en todo el recuadro para seleccionar el checkbox
-                div.addEventListener("click", (e) => {
-                    if (e.target.tagName !== "INPUT" && e.target.tagName !== "LABEL") {
-                        const checkbox = div.querySelector("input");
-                        checkbox.checked = !checkbox.checked;
-                    }
-                });
-
-                div.innerHTML = `
-                    <input 
-                        type="checkbox" 
-                        value="${alumno.nombre}" 
-                        id="alumno_${index}" 
-                        class="w-4 h-4 text-brand-black border-gray-300 rounded focus:ring-brand-black accent-neutral-800"
-                    >
-                    <label for="alumno_${index}" class="text-sm font-medium text-gray-700 cursor-pointer select-none truncate w-full">
-                        ${alumno.nombre}
-                    </label>
+                console.error("Error crítico:", error);
+                document.getElementById("loadingState").innerHTML = `
+                    <div class="text-center p-4 bg-red-950/30 border border-red-800/50 rounded-xl max-w-md mx-auto">
+                        <p class="text-red-400 font-bold mb-1">❌ Fallo al cargar alumnos</p>
+                        <p class="text-gray-400 text-xs">${error.message}</p>
+                    </div>
                 `;
-                contenedorAlumnos.appendChild(div);
-            });
-
-            contenedorAlumnos.classList.remove("hidden");
-            
-            // Habilitar el botón principal de guardado
-            btnGuardarPuntos.disabled = false;
-            btnGuardarPuntos.classList.remove("opacity-50", "cursor-not-allowed");
+            }
         }
 
-        // Lógica de Selección Global
-        document.getElementById("btnSeleccionarTodos").addEventListener("click", () => {
-            const checkboxes = contenedorAlumnos.querySelectorAll("input[type='checkbox']");
-            checkboxes.forEach(cb => cb.checked = true);
-        });
+        // 2. Pintar la lista en pantalla
+        function renderizarAlumnos() {
+            const listaContenedor = document.getElementById("listaAlumnos");
+            listaContenedor.innerHTML = "";
 
-        document.getElementById("btnDesmarcarTodos").addEventListener("click", () => {
-            const checkboxes = contenedorAlumnos.querySelectorAll("input[type='checkbox']");
-            checkboxes.forEach(cb => cb.checked = false);
-        });
+            arregloAlumnos.forEach((alumno, index) => {
+                const card = document.createElement("div");
+                card.className = "bg-gray-900/50 border border-gray-700/60 rounded-xl p-3 flex items-center gap-3 hover:border-gray-500 transition-all cursor-pointer select-none";
+                card.onclick = () => togglerCardCheckbox(index);
 
-        // Evento de Inyección Masiva
-        btnGuardarPuntos.addEventListener("click", async () => {
-            const nombreReto = nombreRetoInput.value.trim();
-            const puntos = puntosRetoInput.value.trim();
-            
-            const checkboxesSeleccionados = contenedorAlumnos.querySelectorAll("input[type='checkbox']:checked");
-            
-            if (!nombreReto) {
-                alert("Por favor, introduce el Nombre del Reto.");
-                nombreRetoInput.focus();
-                return;
-            }
-            if (!puntos || isNaN(puntos)) {
-                alert("Por favor, introduce un número válido para los Puntos.");
-                puntosRetoInput.focus();
-                return;
-            }
-            if (checkboxesSeleccionados.length === 0) {
-                alert("Debes seleccionar al menos un alumno de la lista.");
-                return;
-            }
-
-            // Deshabilitar la interfaz durante el envío masivo
-            btnGuardarPuntos.disabled = true;
-            btnGuardarPuntos.textContent = "Procesando inyección...";
-            btnGuardarPuntos.classList.add("opacity-50");
-
-            const totalAlumnosSeleccionados = checkboxesSeleccionados.length;
-            
-            // Mapeamos las peticiones individuales en paralelo
-            const solicitudes = Array.from(checkboxesSeleccionados).map(async (cb) => {
-                const nombreAlumno = cb.value;
-                
-                const dataEnvio = new URLSearchParams();
-                dataEnvio.append("nombre_alumno", nombreAlumno);
-                dataEnvio.append("nombre_reto", nombreReto);
-                dataEnvio.append("puntos", puntos);
-
-                try {
-                    await fetch(API_URL, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: dataEnvio.toString()
-                    });
-                } catch (error) {
-                    console.error("Error enviando puntos para " + nombreAlumno, error);
-                }
-            });
-
-            // Esperar a que terminen todas las solicitudes fetch
-            await Promise.all(solicitudes);
-
-            // Desplegar ventana modal informativa con la cantidad exacta de alumnos seleccionados
-            modalMensaje.textContent = "Puntos agregados exitosamente a " + totalAlumnosSeleccionados + " alumnos";
-            modalExito.classList.remove("hidden");
-
-            // Restaurar estado del botón
-            btnGuardarPuntos.disabled = false;
-            btnGuardarPuntos.textContent = "Inyectar Puntos Masivamente";
-            btnGuardarPuntos.classList.remove("opacity-50");
-        });
-    </script>
-</body>
-</html>
+                card.innerHTML = `
+                    <input type="checkbox" id="check_${index}" value="${alumno.nombre}" 
+                           class="w-5 h-5 rounded border-gray-700 text-red-600 focus:ring-red-500 bg-gray-800 accent-red-600 pointer-events-none"
+                           onclick="event.stopPropagation(); actualizarContadores();">
+                    <label class="text-sm font-medium text-gray-300 cursor-pointer flex
