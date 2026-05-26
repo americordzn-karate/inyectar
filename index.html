@@ -117,24 +117,29 @@
 
         let alumnosCargados = [];
 
-        // 1. Cargar alumnos al inicializar la página
+        // 1. Cargar alumnos al inicializar la página leyendo el JSON global del doGet
         async function cargarAlumnos() {
             try {
-                // Se asume que tu script responde con la lista completa bajo la acción o método estándar
-                const response = await fetch(`${API_URL}?action=getAlumnos`);
-                if (!response.ok) throw new Error("Error en la respuesta de la red");
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Error al obtener respuesta de Apps Script");
                 
                 const data = await response.json();
                 
-                // Filtrar solo alumnos con Estatus === true (o cadenas "TRUE") y ordenar alfabéticamente
-                alumnosCargados = data.filter(alumno => {
-                    const estatus = alumno.Estatus !== undefined ? alumno.Estatus : alumno.estatus;
-                    return estatus === true || String(estatus).toUpperCase() === "TRUE";
+                // Tu backend devuelve un objeto global con la propiedad 'listaAlumnos'
+                if (!data.listaAlumnos || !Array.isArray(data.listaAlumnos)) {
+                    throw new Error("La estructura devuelta no contiene 'listaAlumnos'");
+                }
+
+                // Filtrar alumnos usando las variables en minúsculas de tu script: 'estatus' y 'nombre'
+                alumnosCargados = data.listaAlumnos.filter(alumno => {
+                    const statusVal = alumno.estatus;
+                    return statusVal === true || String(statusVal).toUpperCase() === "TRUE";
                 });
 
+                // Ordenar alfabéticamente A-Z por la propiedad 'nombre'
                 alumnosCargados.sort((a, b) => {
-                    const nombreA = (a.Nombre || a.Nombre_Alumno || "").toLowerCase();
-                    const nombreB = (b.Nombre || b.Nombre_Alumno || "").toLowerCase();
+                    const nombreA = (a.nombre || "").toLowerCase();
+                    const nombreB = (b.nombre || "").toLowerCase();
                     return nombreA.localeCompare(nombreB);
                 });
 
@@ -145,7 +150,7 @@
             }
         }
 
-        // 2. Renderizar los alumnos filtrados en la tabla
+        // 2. Renderizar los alumnos en la tabla HTML
         function renderizarAlumnos() {
             loadingState.classList.add('hidden');
             tablaAlumnos.classList.remove('hidden');
@@ -157,11 +162,10 @@
             }
 
             alumnosCargados.forEach((alumno, index) => {
-                const nombre = alumno.Nombre || alumno.Nombre_Alumno;
+                const nombre = alumno.nombre;
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-red-50/40 transition-colors cursor-pointer select-none";
                 
-                // Permitir que toda la fila active el checkbox
                 tr.innerHTML = `
                     <td class="p-3 text-center">
                         <input type="checkbox" value="${nombre}" class="chk-alumno w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500" data-index="${index}">
@@ -169,7 +173,7 @@
                     <td class="p-3 font-medium text-gray-800 row-nombre">${nombre}</td>
                 `;
 
-                // Evento para marcar haciendo clic en cualquier parte de la fila
+                // Clic en la fila entera cambia el estado del checkbox
                 tr.addEventListener('click', (e) => {
                     if (e.target.type !== 'checkbox') {
                         const chk = tr.querySelector('.chk-alumno');
@@ -178,20 +182,18 @@
                     }
                 });
 
-                // Evento directo en el checkbox
                 tr.querySelector('.chk-alumno').addEventListener('change', actualizarContador);
-
                 listaAlumnosBody.appendChild(tr);
             });
         }
 
-        // 3. Actualizar contador de seleccionados
+        // 3. Actualizar el contador visual de seleccionados
         function actualizarContador() {
             const seleccionados = document.querySelectorAll('.chk-alumno:checked').length;
             numSeleccionados.textContent = seleccionados;
         }
 
-        // 4. Controles masivos de selección visual
+        // 4. Controles para selección masiva en lote
         btnSeleccionarTodos.addEventListener('click', () => {
             document.querySelectorAll('.chk-alumno').forEach(chk => chk.checked = true);
             actualizarContador();
@@ -202,13 +204,12 @@
             actualizarContador();
         });
 
-        // 5. Enviar Datos de forma Masiva
+        // 5. Enviar Datos respetando el formato del doPost (parámetros de formulario individuales)
         btnEnviarPuntos.addEventListener('click', async () => {
             const nombreReto = document.getElementById('nombreReto').value.trim();
             const puntosReto = document.getElementById('puntosReto').value.trim();
             const checkboxes = document.querySelectorAll('.chk-alumno:checked');
 
-            // Validaciones básicas de formulario
             if (!nombreReto) {
                 alert("Por favor, introduce el Nombre del Reto.");
                 return;
@@ -222,56 +223,54 @@
                 return;
             }
 
-            // Deshabilitar botón durante el proceso de red
             btnEnviarPuntos.disabled = true;
-            btnEnviarPuntos.textContent = "Procesando envío...";
+            btnEnviarPuntos.textContent = "Procesando inyección masiva...";
 
-            // Recopilar nombres seleccionados
             const alumnosSeleccionados = [];
             checkboxes.forEach(chk => alumnosSeleccionados.push(chk.value));
 
-            // Estructurar el paquete de datos para enviar
-            const payload = {
-                nombreReto: nombreReto,
-                puntos: parseInt(puntosReto, 10),
-                alumnos: alumnosSeleccionados
-            };
+            // Tu doPost lee los parámetros directos mediante x-www-form-urlencoded
+            // Ejecutamos las llamadas simultáneamente en paralelo por rendimiento
+            const peticiones = alumnosSeleccionados.map(alumno => {
+                const formData = new URLSearchParams();
+                formData.append('nombre_alumno', alumno);
+                formData.append('nombre_reto', nombreReto);
+                formData.append('puntos', puntosReto);
+
+                return fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Evita bloqueos de seguridad de origen cruzado de Google
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                });
+            });
 
             try {
-                // Petición POST usando 'no-cors' para evitar restricciones del navegador al enviar a Google Apps Script
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                // Despliegue de la ventana emergente/modal de éxito
+                // Esperamos que todas las inserciones se completen en Sheets
+                await Promise.all(peticiones);
                 mostrarModalExito(alumnosSeleccionados.length);
-
             } catch (error) {
                 console.error("Error al inyectar puntos:", error);
-                alert("Ocurrió un inconveniente al comunicarse con la base de datos de Google Sheets. Verifica los registros.");
+                alert("Ocurrió un error al intentar registrar los puntos en la base de datos.");
                 btnEnviarPuntos.disabled = false;
                 btnEnviarPuntos.textContent = "Inyectar Puntos Masivamente";
             }
         });
 
-        // 6. Control de Ventana de Confirmación Estilizada
+        // 6. Despliegue de la Ventana Emergente (Modal) requerida
         function mostrarModalExito(cantidadAlumnos) {
             modalMensaje.textContent = "Puntos agregados exitosamente a " + cantidadAlumnos + " alumnos";
             modalExito.classList.remove('hidden');
             
-            // Forzar reflow para animación CSS
             setTimeout(() => {
                 modalExito.classList.remove('opacity-0');
                 modalExito.querySelector('div').classList.remove('scale-95');
             }, 50);
         }
 
-        // Inicializar carga de datos al abrir la página
+        // Ejecutar carga inicial al abrir el archivo
         window.addEventListener('DOMContentLoaded', cargarAlumnos);
     </script>
 </body>
