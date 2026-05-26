@@ -130,30 +130,50 @@
         window.addEventListener("DOMContentLoaded", obtenerAlumnos);
 
         async function obtenerAlumnos() {
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("No se pudo conectar con el servidor.");
-                
-                const data = await response.json();
-                
-                // Extraer listaAlumnos provista por el doGet de tu Apps Script
-                if (data && data.listaAlumnos) {
-                    alumnosVigentes = data.listaAlumnos;
-                    
-                    // Ordenar alfabéticamente en orden ascendente por Nombre
-                    alumnosVigentes.sort((a, b) => a.nombre.localeCompare(b.nombre));
-                    
-                    renderizarAlumnos();
-                } else {
-                    throw new Error("La estructura de datos devuelta no es la esperada.");
-                }
-            } catch (error) {
-                console.error(error);
-                estadoCarga.classList.add("hidden");
-                mensajeError.textContent = "Error al cargar alumnos: " + error.message;
-                mensajeError.classList.remove("hidden");
-            }
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("No se pudo conectar con el servidor de Google AppScript.");
+        
+        const data = await response.json();
+        console.log("Datos recibidos del servidor:", data); // Esto te permitirá auditar la respuesta real en la consola de desarrollador (F12)
+
+        // 1. Validar si el Apps Script devolvió un error controlado en su propio catch
+        if (data && data.success === false) {
+            throw new Error(data.error || "El servidor reportó un error interno.");
         }
+        
+        // 2. Extraer la lista de alumnos tolerando variaciones en la estructura
+        if (data && data.listaAlumnos) {
+            alumnosVigentes = data.listaAlumnos;
+        } else if (Array.isArray(data)) {
+            // Por si acaso el script llegara a devolver el arreglo de alumnos de forma directa
+            alumnosVigentes = data;
+        } else {
+            throw new Error("No se encontró la propiedad 'listaAlumnos' en la respuesta del servidor.");
+        }
+        
+        // 3. Normalizar propiedades internas (Por si acaso viene 'nombre_alumno' o 'nombre')
+        alumnosVigentes = alumnosVigentes.map(al => {
+            return {
+                nombre: al.nombre || al.nombre_alumno || al.Nombre || "Alumno sin nombre",
+                estatus: al.estatus !== undefined ? al.estatus : true
+            };
+        });
+
+        // 4. Ordenar alfabéticamente en orden ascendente por el campo Nombre
+        alumnosVigentes.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        
+        // Ejecutar el dibujado de los checkboxes en la página
+        renderizarAlumnos();
+
+    } catch (error) {
+        console.error(error);
+        estadoCarga.classList.add("hidden");
+        // Muestra el verdadero motivo del error mapeado para corregirlo rápido
+        mensajeError.textContent = "⚙️ Fallo al cargar alumnos: " + error.message;
+        mensajeError.classList.remove("hidden");
+    }
+}
 
         function renderizarAlumnos() {
             estadoCarga.classList.add("hidden");
