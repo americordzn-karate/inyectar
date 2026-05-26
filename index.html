@@ -340,19 +340,15 @@ async function agregarPuntos(){
                 puntos: puntos
             };
 
-            const response = await fetch(API_URL,{
+            await fetch(API_URL,{
                 method:"POST",
                 headers:{
-                    "Content-Type":"application/json"
+                    "Content-Type":"text/plain;charset=utf-8"
                 },
-                body:JSON.stringify(body)
+                body: JSON.stringify(body)
             });
 
-            const result = await response.json();
-
-            if(result.success){
-                enviados++;
-            }
+            enviados++;
         }
 
         document.getElementById("mensajeExito").innerText =
@@ -362,8 +358,8 @@ async function agregarPuntos(){
 
     }catch(error){
 
-        alert("Ocurrió un error al agregar puntos");
         console.error(error);
+        alert("Ocurrió un error al agregar puntos");
 
     }finally{
 
