@@ -157,7 +157,7 @@
                     throw new Error("No se encontró la propiedad 'listaAlumnos' o el formato no es válido.");
                 }
 
-                // Filtrar alumnos activos y ordenarlos de la A a la Z
+                // Filtrar alumnos activos (Estatus == TRUE) y ordenarlos alfabéticamente de la A a la Z
                 alumnosVigentes = alumnos
                     .filter(a => {
                         const estatusVal = a.estatus !== undefined ? a.estatus : a.Estatus;
@@ -255,12 +255,14 @@
                 return;
             }
 
+            // Deshabilitar la interfaz durante el envío masivo
             btnGuardarPuntos.disabled = true;
             btnGuardarPuntos.textContent = "Procesando inyección...";
             btnGuardarPuntos.classList.add("opacity-50");
 
-            let conteoExitoso = 0;
+            const totalAlumnosSeleccionados = checkboxesSeleccionados.length;
             
+            // Mapeamos las peticiones individuales en paralelo
             const solicitudes = Array.from(checkboxesSeleccionados).map(async (cb) => {
                 const nombreAlumno = cb.value;
                 
@@ -278,17 +280,19 @@
                         },
                         body: dataEnvio.toString()
                     });
-                    conteoExitoso++;
                 } catch (error) {
-                    console.error("Error inyectando puntos para " + nombreAlumno, error);
+                    console.error("Error enviando puntos para " + nombreAlumno, error);
                 }
             });
 
+            // Esperar a que terminen todas las solicitudes fetch
             await Promise.all(solicitudes);
 
-            modalMensaje.textContent = "Puntos agregados exitosamente a " + conteoExitoso + " alumnos";
+            // Desplegar ventana modal informativa con la cantidad exacta de alumnos seleccionados
+            modalMensaje.textContent = "Puntos agregados exitosamente a " + totalAlumnosSeleccionados + " alumnos";
             modalExito.classList.remove("hidden");
 
+            // Restaurar estado del botón
             btnGuardarPuntos.disabled = false;
             btnGuardarPuntos.textContent = "Inyectar Puntos Masivamente";
             btnGuardarPuntos.classList.remove("opacity-50");
