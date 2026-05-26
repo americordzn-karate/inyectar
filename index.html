@@ -3,275 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senshi-Kan - Asignación Masiva de Puntos</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Administración Masiva de Puntos - Senshi-Kan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Animación suave para la ventana emergente (Modal) */
-        .modal-fade {
-            transition: opacity 0.3s ease, transform 0.3s ease;
+        .bg-brand-black { background-color: #1a1a1a; }
+        .text-brand-gold { color: #d4af37; }
+        .bg-brand-gold { background-color: #d4af37; }
+        .border-brand-gold { border-color: #d4af37; }
+        
+        /* Estilos para el modal/ventana flotante */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen flex flex-col justify-between">
+<body class="bg-gray-100 min-h-screen font-sans">
 
-    <header class="bg-black text-white py-4 px-6 shadow-md">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wider text-red-500">SENSHI-KAN DOJO</h1>
-            <span class="text-sm bg-zinc-800 px-3 py-1 rounded-full text-gray-300">Panel de Administración</span>
-        </div>
+    <header class="bg-brand-black text-white py-6 shadow-md text-center border-b-4 border-brand-gold">
+        <h1 class="text-3xl font-bold tracking-wider text-brand-gold text-center">PANEL DE ADMINISTRACIÓN</h1>
+        <p class="text-gray-400 text-sm mt-1">Asignación Masiva de Puntos a Retos</p>
     </header>
 
-    <main class="max-w-5xl w-full mx-auto p-4 md:p-6 flex-grow">
-        <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-red-600">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                🏆 Asignación Masiva de Puntos a Retos
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <section class="bg-white rounded-lg p-6 shadow-sm mb-6 border-t-4 border-brand-black">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                ⚙️ <span class="tracking-wide">CONFIGURACIÓN DEL PUNTAJE</span>
             </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-md border border-gray-200">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="nombreReto" class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Reto / Actividad:</label>
-                    <input type="text" id="nombreReto" placeholder="Ej. Torneo Interno, Clase Especial, Kata Sync" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <label for="nombreReto" class="block text-xs font-bold text-gray-700 uppercase mb-1 tracking-wider">Nombre del Reto:</label>
+                    <input 
+                        type="text" 
+                        id="nombreReto" 
+                        placeholder="Ej. PUNCH, RELACIONA PALABRAS" 
+                        class="w-full border-2 border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-brand-black transition-colors"
+                    >
                 </div>
                 <div>
-                    <label for="puntosReto" class="block text-sm font-semibold text-gray-700 mb-1">Puntos a Otorgar:</label>
-                    <input type="number" id="puntosReto" min="0" placeholder="Ej. 5" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <label for="puntosReto" class="block text-xs font-bold text-gray-700 uppercase mb-1 tracking-wider">Puntos a Asignar:</label>
+                    <input 
+                        type="number" 
+                        id="puntosReto" 
+                        placeholder="Ej. 3" 
+                        min="0"
+                        class="w-full border-2 border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-brand-black transition-colors"
+                    >
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg p-6 shadow-sm border-t-4 border-brand-gold">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b pb-3">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    🥋 <span class="tracking-wide">SELECCIÓN DE ALUMNOS</span>
+                </h2>
+                <div class="flex gap-2">
+                    <button id="btnSeleccionarTodos" class="text-xs font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-300 transition-colors">Seleccionar Todos</button>
+                    <button id="btnDesmarcarTodos" class="text-xs font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-300 transition-colors">Desmarcar Todos</button>
                 </div>
             </div>
 
-            <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-                <div class="flex items-center gap-2">
-                    <button id="btnSeleccionarTodos" class="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-medium py-1 px-3 rounded transition-colors">
-                        Seleccionar Todos
-                    </button>
-                    <button id="btnDesmarcarTodos" class="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-medium py-1 px-3 rounded transition-colors">
-                        Desmarcar Todos
-                    </button>
-                </div>
-                <div id="contadorSeleccionados" class="text-sm text-gray-600 font-medium">
-                    Alumnos seleccionados: <span id="numSeleccionados" class="text-red-600 font-bold">0</span>
-                </div>
+            <div id="estadoCarga" class="text-center py-8 text-gray-500 font-semibold">
+                <div class="animate-spin inline-block w-6 height-6 border-[3px] border-current border-t-transparent text-brand-gold rounded-full mr-2" role="status"></div>
+                Cargando alumnos vigentes...
             </div>
 
-            <div class="border border-gray-200 rounded-md max-h-[450px] overflow-y-auto bg-white">
-                <div id="loadingState" class="p-8 text-center text-gray-500">
-                    <svg class="animate-spin h-8 w-8 mx-auto mb-2 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Cargando listado de alumnos vigentes...
+            <div id="mensajeError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm font-semibold"></div>
+
+            <div id="contenedorAlumnos" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto p-1">
                 </div>
 
-                <table id="tablaAlumnos" class="w-full text-left border-collapse hidden">
-                    <thead>
-                        <tr class="bg-zinc-800 text-white sticky top-0">
-                            <th class="p-3 w-12 text-center">Sel.</th>
-                            <th class="p-3">Nombre del Alumno</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaAlumnosBody" class="divide-y divide-gray-200 text-gray-700">
-                        </tbody>
-                </table>
-            </div>
-
-            <div class="mt-6 flex justify-end">
-                <button id="btnEnviarPuntos" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-md shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+            <div class="mt-6 border-t pt-4 flex justify-end">
+                <button 
+                    id="btnGuardarPuntos" 
+                    disabled
+                    class="bg-brand-black text-brand-gold font-bold py-3 px-6 rounded tracking-wide border border-brand-gold opacity-50 cursor-not-allowed hover:bg-neutral-800 transition-all uppercase text-sm"
+                >
                     Inyectar Puntos Masivamente
                 </button>
             </div>
-        </div>
+        </section>
     </main>
 
-    <div id="modalExito" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden z-50 opacity-0 modal-fade">
-        <div class="bg-white rounded-lg max-w-md w-full p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-3xl">
-                ✓
+    <div id="modalExito" class="hidden modal-overlay">
+        <div class="bg-white rounded-lg p-6 shadow-xl max-w-md w-full mx-4 text-center border-t-4 border-brand-gold">
+            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-3xl">🏆</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">¡Registros Creados!</h3>
-            <p id="modalMensaje" class="text-gray-600 mb-6">Puntos agregados exitosamente.</p>
-            <a href="https://americordzn-karate.github.io/retos/" 
-               class="inline-block w-full bg-zinc-900 hover:bg-black text-white font-semibold py-2.5 px-4 rounded-md shadow transition-colors text-center">
+            <h3 id="modalMensaje" class="text-xl font-bold text-gray-800 mb-6">Puntos agregados exitosamente</h3>
+            <a 
+                href="https://americordzn-karate.github.io/retos/" 
+                class="block w-full text-center bg-brand-black text-brand-gold font-bold py-3 px-4 rounded tracking-wide border border-brand-gold hover:bg-neutral-800 transition-colors"
+            >
                 Volver al Portal de Retos
             </a>
         </div>
     </div>
 
-    <footer class="bg-zinc-900 text-zinc-400 text-xs py-3 text-center border-t border-zinc-800">
-        © 2026 Academia de Karate Senshi-Kan. Control Operativo de Gamificación.
-    </footer>
-
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwX5w8iiwkJVbGtpz-5f20U9jue2MC0vouE3blkHXo9CIMqg9bvCZrAYE8WKxH4gXGWzg/exec";
+        
+        let alumnosVigentes = [];
 
-        // Elementos del DOM
-        const loadingState = document.getElementById('loadingState');
-        const tablaAlumnos = document.getElementById('tablaAlumnos');
-        const listaAlumnosBody = document.getElementById('listaAlumnosBody');
-        const numSeleccionados = document.getElementById('numSeleccionados');
-        const btnSeleccionarTodos = document.getElementById('btnSeleccionarTodos');
-        const btnDesmarcarTodos = document.getElementById('btnDesmarcarTodos');
-        const btnEnviarPuntos = document.getElementById('btnEnviarPuntos');
-        const modalExito = document.getElementById('modalExito');
-        const modalMensaje = document.getElementById('modalMensaje');
+        // Elementos de la interfaz
+        const contenedorAlumnos = document.getElementById("contenedorAlumnos");
+        const estadoCarga = document.getElementById("estadoCarga");
+        const mensajeError = document.getElementById("mensajeError");
+        const btnGuardarPuntos = document.getElementById("btnGuardarPuntos");
+        const nombreRetoInput = document.getElementById("nombreReto");
+        const puntosRetoInput = document.getElementById("puntosReto");
+        
+        const modalExito = document.getElementById("modalExito");
+        const modalMensaje = document.getElementById("modalMensaje");
 
-        let alumnosCargados = [];
+        // Cargar los alumnos al inicializar la página
+        window.addEventListener("DOMContentLoaded", obtenerAlumnos);
 
-        // 1. Cargar alumnos al inicializar la página leyendo el JSON global del doGet
-        async function cargarAlumnos() {
+        async function obtenerAlumnos() {
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error("Error al obtener respuesta de Apps Script");
+                if (!response.ok) throw new Error("No se pudo conectar con el servidor.");
                 
                 const data = await response.json();
                 
-                // Tu backend devuelve un objeto global con la propiedad 'listaAlumnos'
-                if (!data.listaAlumnos || !Array.isArray(data.listaAlumnos)) {
-                    throw new Error("La estructura devuelta no contiene 'listaAlumnos'");
+                // Extraer listaAlumnos provista por el doGet de tu Apps Script
+                if (data && data.listaAlumnos) {
+                    alumnosVigentes = data.listaAlumnos;
+                    
+                    // Ordenar alfabéticamente en orden ascendente por Nombre
+                    alumnosVigentes.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                    
+                    renderizarAlumnos();
+                } else {
+                    throw new Error("La estructura de datos devuelta no es la esperada.");
                 }
-
-                // Filtrar alumnos usando las variables en minúsculas de tu script: 'estatus' y 'nombre'
-                alumnosCargados = data.listaAlumnos.filter(alumno => {
-                    const statusVal = alumno.estatus;
-                    return statusVal === true || String(statusVal).toUpperCase() === "TRUE";
-                });
-
-                // Ordenar alfabéticamente A-Z por la propiedad 'nombre'
-                alumnosCargados.sort((a, b) => {
-                    const nombreA = (a.nombre || "").toLowerCase();
-                    const nombreB = (b.nombre || "").toLowerCase();
-                    return nombreA.localeCompare(nombreB);
-                });
-
-                renderizarAlumnos();
             } catch (error) {
-                console.error("Error cargando alumnos:", error);
-                loadingState.innerHTML = `<span class="text-red-500 font-semibold">⚠️ No se pudo cargar el listado de alumnos. Por favor revisa la consola o los permisos de Apps Script.</span>`;
+                console.error(error);
+                estadoCarga.classList.add("hidden");
+                mensajeError.textContent = "Error al cargar alumnos: " + error.message;
+                mensajeError.classList.remove("hidden");
             }
         }
 
-        // 2. Renderizar los alumnos en la tabla HTML
         function renderizarAlumnos() {
-            loadingState.classList.add('hidden');
-            tablaAlumnos.classList.remove('hidden');
-            listaAlumnosBody.innerHTML = "";
+            estadoCarga.classList.add("hidden");
+            contenedorAlumnos.innerHTML = "";
 
-            if (alumnosCargados.length === 0) {
-                listaAlumnosBody.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-gray-500">No se encontraron alumnos con estatus Activo (TRUE).</td></tr>`;
+            if (alumnosVigentes.length === 0) {
+                contenedorAlumnos.innerHTML = "<p class='col-span-full text-center text-gray-500'>No se encontraron alumnos vigentes activos.</p>";
+                contenedorAlumnos.classList.remove("hidden");
                 return;
             }
 
-            alumnosCargados.forEach((alumno, index) => {
-                const nombre = alumno.nombre;
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-red-50/40 transition-colors cursor-pointer select-none";
+            alumnosVigentes.forEach((alumno, index) => {
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-colors cursor-pointer";
                 
-                tr.innerHTML = `
-                    <td class="p-3 text-center">
-                        <input type="checkbox" value="${nombre}" class="chk-alumno w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500" data-index="${index}">
-                    </td>
-                    <td class="p-3 font-medium text-gray-800 row-nombre">${nombre}</td>
-                `;
-
-                // Clic en la fila entera cambia el estado del checkbox
-                tr.addEventListener('click', (e) => {
-                    if (e.target.type !== 'checkbox') {
-                        const chk = tr.querySelector('.chk-alumno');
-                        chk.checked = !chk.checked;
-                        actualizarContador();
+                // Permitir hacer clic en todo el recuadro para seleccionar el checkbox
+                div.addEventListener("click", (e) => {
+                    if (e.target.tagName !== "INPUT") {
+                        const checkbox = div.querySelector("input");
+                        checkbox.checked = !checkbox.checked;
                     }
                 });
 
-                tr.querySelector('.chk-alumno').addEventListener('change', actualizarContador);
-                listaAlumnosBody.appendChild(tr);
+                div.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        value="${alumno.nombre}" 
+                        id="alumno_${index}" 
+                        class="w-4 h-4 text-brand-black border-gray-300 rounded focus:ring-brand-black accent-neutral-800"
+                    >
+                    <label for="alumno_${index}" class="text-sm font-medium text-gray-700 cursor-pointer select-none truncate">
+                        ${alumno.nombre}
+                    </label>
+                `;
+                contenedorAlumnos.appendChild(div);
             });
+
+            contenedorAlumnos.classList.remove("hidden");
+            
+            // Habilitar el botón principal de guardado
+            btnGuardarPuntos.disabled = false;
+            btnGuardarPuntos.classList.remove("opacity-50", "cursor-not-allowed");
         }
 
-        // 3. Actualizar el contador visual de seleccionados
-        function actualizarContador() {
-            const seleccionados = document.querySelectorAll('.chk-alumno:checked').length;
-            numSeleccionados.textContent = seleccionados;
-        }
-
-        // 4. Controles para selección masiva en lote
-        btnSeleccionarTodos.addEventListener('click', () => {
-            document.querySelectorAll('.chk-alumno').forEach(chk => chk.checked = true);
-            actualizarContador();
+        // Lógica de Selección Global
+        document.getElementById("btnSeleccionarTodos").addEventListener("click", () => {
+            const checkboxes = contenedorAlumnos.querySelectorAll("input[type='checkbox']");
+            checkboxes.forEach(cb => cb.checked = true);
         });
 
-        btnDesmarcarTodos.addEventListener('click', () => {
-            document.querySelectorAll('.chk-alumno').forEach(chk => chk.checked = false);
-            actualizarContador();
+        document.getElementById("btnDesmarcarTodos").addEventListener("click", () => {
+            const checkboxes = contenedorAlumnos.querySelectorAll("input[type='checkbox']");
+            checkboxes.forEach(cb => cb.checked = false);
         });
 
-        // 5. Enviar Datos respetando el formato del doPost (parámetros de formulario individuales)
-        btnEnviarPuntos.addEventListener('click', async () => {
-            const nombreReto = document.getElementById('nombreReto').value.trim();
-            const puntosReto = document.getElementById('puntosReto').value.trim();
-            const checkboxes = document.querySelectorAll('.chk-alumno:checked');
-
+        // Evento de Inyección Masiva
+        btnGuardarPuntos.addEventListener("click", async () => {
+            const nombreReto = nombreRetoInput.value.trim();
+            const puntos = puntosRetoInput.value.trim();
+            
+            // Obtener todos los checkboxes seleccionados
+            const checkboxesSeleccionados = contenedorAlumnos.querySelectorAll("input[type='checkbox']:checked");
+            
+            // Validaciones básicas
             if (!nombreReto) {
                 alert("Por favor, introduce el Nombre del Reto.");
+                nombreRetoInput.focus();
                 return;
             }
-            if (!puntosReto || isNaN(puntosReto)) {
+            if (!puntos || isNaN(puntos)) {
                 alert("Por favor, introduce un número válido para los Puntos.");
+                puntosRetoInput.focus();
                 return;
             }
-            if (checkboxes.length === 0) {
+            if (checkboxesSeleccionados.length === 0) {
                 alert("Debes seleccionar al menos un alumno de la lista.");
                 return;
             }
 
-            btnEnviarPuntos.disabled = true;
-            btnEnviarPuntos.textContent = "Procesando inyección masiva...";
+            // Deshabilitar botón durante el proceso para evitar duplicados
+            btnGuardarPuntos.disabled = true;
+            btnGuardarPuntos.textContent = "Procesando inyección...";
+            btnGuardarPuntos.classList.add("opacity-50");
 
-            const alumnosSeleccionados = [];
-            checkboxes.forEach(chk => alumnosSeleccionados.push(chk.value));
+            let conteoExitoso = 0;
+            
+            // Mapeamos las promesas de envío de datos individuales para ejecutarlas en paralelo
+            const solicitudes = Array.from(checkboxesSeleccionados).map(async (cb) => {
+                const nombreAlumno = cb.value;
+                
+                // Formateamos los parámetros como x-www-form-urlencoded para que coincidan con e.parameter en doPost()
+                const dataEnvio = new URLSearchParams();
+                dataEnvio.append("nombre_alumno", nombreAlumno);
+                dataEnvio.append("nombre_reto", nombreReto);
+                dataEnvio.append("puntos", puntos);
 
-            // Tu doPost lee los parámetros directos mediante x-www-form-urlencoded
-            // Ejecutamos las llamadas simultáneamente en paralelo por rendimiento
-            const peticiones = alumnosSeleccionados.map(alumno => {
-                const formData = new URLSearchParams();
-                formData.append('nombre_alumno', alumno);
-                formData.append('nombre_reto', nombreReto);
-                formData.append('puntos', puntosReto);
-
-                return fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Evita bloqueos de seguridad de origen cruzado de Google
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: formData.toString()
-                });
+                try {
+                    // Usamos modo 'no-cors' para alinearlo con las peticiones de los demás retos del ecosistema
+                    await fetch(API_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: dataEnvio.toString()
+                    });
+                    conteoExitoso++;
+                } catch (error) {
+                    console.error("Error inyectando puntos para " + nombreAlumno, error);
+                }
             });
 
-            try {
-                // Esperamos que todas las inserciones se completen en Sheets
-                await Promise.all(peticiones);
-                mostrarModalExito(alumnosSeleccionados.length);
-            } catch (error) {
-                console.error("Error al inyectar puntos:", error);
-                alert("Ocurrió un error al intentar registrar los puntos en la base de datos.");
-                btnEnviarPuntos.disabled = false;
-                btnEnviarPuntos.textContent = "Inyectar Puntos Masivamente";
-            }
+            // Esperar a que se procesen todas las llamadas individuales
+            await Promise.all(solicitudes);
+
+            // Mostrar el Modal Personalizado con los resultados requeridos
+            modalMensaje.textContent = "Puntos agregados exitosamente a " + conteoExitoso + " alumnos";
+            modalExito.classList.remove("hidden");
+
+            // Restablecer el botón
+            btnGuardarPuntos.disabled = false;
+            btnGuardarPuntos.textContent = "Inyectar Puntos Masivamente";
+            btnGuardarPuntos.classList.remove("opacity-50");
         });
-
-        // 6. Despliegue de la Ventana Emergente (Modal) requerida
-        function mostrarModalExito(cantidadAlumnos) {
-            modalMensaje.textContent = "Puntos agregados exitosamente a " + cantidadAlumnos + " alumnos";
-            modalExito.classList.remove('hidden');
-            
-            setTimeout(() => {
-                modalExito.classList.remove('opacity-0');
-                modalExito.querySelector('div').classList.remove('scale-95');
-            }, 50);
-        }
-
-        // Ejecutar carga inicial al abrir el archivo
-        window.addEventListener('DOMContentLoaded', cargarAlumnos);
     </script>
 </body>
 </html>
