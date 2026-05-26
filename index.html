@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senshi-Kan - Asignación Masiva de Puntos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Animación suave para la ventana emergente (Modal) */
+        .modal-fade {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <header class="bg-black text-white py-4 px-6 shadow-md">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wider text-red-500">SENSHI-KAN DOJO</h1>
+            <span class="text-sm bg-zinc-800 px-3 py-1 rounded-full text-gray-300">Panel de Administración</span>
+        </div>
+    </header>
+
+    <main class="max-w-5xl w-full mx-auto p-4 md:p-6 flex-grow">
+        <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-red-600">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🏆 Asignación Masiva de Puntos a Retos
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-md border border-gray-200">
+                <div>
+                    <label for="nombreReto" class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Reto / Actividad:</label>
+                    <input type="text" id="nombreReto" placeholder="Ej. Torneo Interno, Clase Especial, Kata Sync" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="puntosReto" class="block text-sm font-semibold text-gray-700 mb-1">Puntos a Otorgar:</label>
+                    <input type="number" id="puntosReto" min="0" placeholder="Ej. 5" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+                <div class="flex items-center gap-2">
+                    <button id="btnSeleccionarTodos" class="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-medium py-1 px-3 rounded transition-colors">
+                        Seleccionar Todos
+                    </button>
+                    <button id="btnDesmarcarTodos" class="text-sm bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-medium py-1 px-3 rounded transition-colors">
+                        Desmarcar Todos
+                    </button>
+                </div>
+                <div id="contadorSeleccionados" class="text-sm text-gray-600 font-medium">
+                    Alumnos seleccionados: <span id="numSeleccionados" class="text-red-600 font-bold">0</span>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-md max-h-[450px] overflow-y-auto bg-white">
+                <div id="loadingState" class="p-8 text-center text-gray-500">
+                    <svg class="animate-spin h-8 w-8 mx-auto mb-2 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Cargando listado de alumnos vigentes...
+                </div>
+
+                <table id="tablaAlumnos" class="w-full text-left border-collapse hidden">
+                    <thead>
+                        <tr class="bg-zinc-800 text-white sticky top-0">
+                            <th class="p-3 w-12 text-center">Sel.</th>
+                            <th class="p-3">Nombre del Alumno</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaAlumnosBody" class="divide-y divide-gray-200 text-gray-700">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button id="btnEnviarPuntos" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-md shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Inyectar Puntos Masivamente
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <div id="modalExito" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden z-50 opacity-0 modal-fade">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-3xl">
+                ✓
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">¡Registros Creados!</h3>
+            <p id="modalMensaje" class="text-gray-600 mb-6">Puntos agregados exitosamente.</p>
+            <a href="https://americordzn-karate.github.io/retos/" 
+               class="inline-block w-full bg-zinc-900 hover:bg-black text-white font-semibold py-2.5 px-4 rounded-md shadow transition-colors text-center">
+                Volver al Portal de Retos
+            </a>
+        </div>
+    </div>
+
+    <footer class="bg-zinc-900 text-zinc-400 text-xs py-3 text-center border-t border-zinc-800">
+        © 2026 Academia de Karate Senshi-Kan. Control Operativo de Gamificación.
+    </footer>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwX5w8iiwkJVbGtpz-5f20U9jue2MC0vouE3blkHXo9CIMqg9bvCZrAYE8WKxH4gXGWzg/exec";
+
+        // Elementos del DOM
+        const loadingState = document.getElementById('loadingState');
+        const tablaAlumnos = document.getElementById('tablaAlumnos');
+        const listaAlumnosBody = document.getElementById('listaAlumnosBody');
+        const numSeleccionados = document.getElementById('numSeleccionados');
+        const btnSeleccionarTodos = document.getElementById('btnSeleccionarTodos');
+        const btnDesmarcarTodos = document.getElementById('btnDesmarcarTodos');
+        const btnEnviarPuntos = document.getElementById('btnEnviarPuntos');
+        const modalExito = document.getElementById('modalExito');
+        const modalMensaje = document.getElementById('modalMensaje');
+
+        let alumnosCargados = [];
+
+        // 1. Cargar alumnos al inicializar la página
+        async function cargarAlumnos() {
+            try {
+                // Se asume que tu script responde con la lista completa bajo la acción o método estándar
+                const response = await fetch(`${API_URL}?action=getAlumnos`);
+                if (!response.ok) throw new Error("Error en la respuesta de la red");
+                
+                const data = await response.json();
+                
+                // Filtrar solo alumnos con Estatus === true (o cadenas "TRUE") y ordenar alfabéticamente
+                alumnosCargados = data.filter(alumno => {
+                    const estatus = alumno.Estatus !== undefined ? alumno.Estatus : alumno.estatus;
+                    return estatus === true || String(estatus).toUpperCase() === "TRUE";
+                });
+
+                alumnosCargados.sort((a, b) => {
+                    const nombreA = (a.Nombre || a.Nombre_Alumno || "").toLowerCase();
+                    const nombreB = (b.Nombre || b.Nombre_Alumno || "").toLowerCase();
+                    return nombreA.localeCompare(nombreB);
+                });
+
+                renderizarAlumnos();
+            } catch (error) {
+                console.error("Error cargando alumnos:", error);
+                loadingState.innerHTML = `<span class="text-red-500 font-semibold">⚠️ No se pudo cargar el listado de alumnos. Por favor revisa la consola o los permisos de Apps Script.</span>`;
+            }
+        }
+
+        // 2. Renderizar los alumnos filtrados en la tabla
+        function renderizarAlumnos() {
+            loadingState.classList.add('hidden');
+            tablaAlumnos.classList.remove('hidden');
+            listaAlumnosBody.innerHTML = "";
+
+            if (alumnosCargados.length === 0) {
+                listaAlumnosBody.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-gray-500">No se encontraron alumnos con estatus Activo (TRUE).</td></tr>`;
+                return;
+            }
+
+            alumnosCargados.forEach((alumno, index) => {
+                const nombre = alumno.Nombre || alumno.Nombre_Alumno;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-red-50/40 transition-colors cursor-pointer select-none";
+                
+                // Permitir que toda la fila active el checkbox
+                tr.innerHTML = `
+                    <td class="p-3 text-center">
+                        <input type="checkbox" value="${nombre}" class="chk-alumno w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500" data-index="${index}">
+                    </td>
+                    <td class="p-3 font-medium text-gray-800 row-nombre">${nombre}</td>
+                `;
+
+                // Evento para marcar haciendo clic en cualquier parte de la fila
+                tr.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        const chk = tr.querySelector('.chk-alumno');
+                        chk.checked = !chk.checked;
+                        actualizarContador();
+                    }
+                });
+
+                // Evento directo en el checkbox
+                tr.querySelector('.chk-alumno').addEventListener('change', actualizarContador);
+
+                listaAlumnosBody.appendChild(tr);
+            });
+        }
+
+        // 3. Actualizar contador de seleccionados
+        function actualizarContador() {
+            const seleccionados = document.querySelectorAll('.chk-alumno:checked').length;
+            numSeleccionados.textContent = seleccionados;
+        }
+
+        // 4. Controles masivos de selección visual
+        btnSeleccionarTodos.addEventListener('click', () => {
+            document.querySelectorAll('.chk-alumno').forEach(chk => chk.checked = true);
+            actualizarContador();
+        });
+
+        btnDesmarcarTodos.addEventListener('click', () => {
+            document.querySelectorAll('.chk-alumno').forEach(chk => chk.checked = false);
+            actualizarContador();
+        });
+
+        // 5. Enviar Datos de forma Masiva
+        btnEnviarPuntos.addEventListener('click', async () => {
+            const nombreReto = document.getElementById('nombreReto').value.trim();
+            const puntosReto = document.getElementById('puntosReto').value.trim();
+            const checkboxes = document.querySelectorAll('.chk-alumno:checked');
+
+            // Validaciones básicas de formulario
+            if (!nombreReto) {
+                alert("Por favor, introduce el Nombre del Reto.");
+                return;
+            }
+            if (!puntosReto || isNaN(puntosReto)) {
+                alert("Por favor, introduce un número válido para los Puntos.");
+                return;
+            }
+            if (checkboxes.length === 0) {
+                alert("Debes seleccionar al menos un alumno de la lista.");
+                return;
+            }
+
+            // Deshabilitar botón durante el proceso de red
+            btnEnviarPuntos.disabled = true;
+            btnEnviarPuntos.textContent = "Procesando envío...";
+
+            // Recopilar nombres seleccionados
+            const alumnosSeleccionados = [];
+            checkboxes.forEach(chk => alumnosSeleccionados.push(chk.value));
+
+            // Estructurar el paquete de datos para enviar
+            const payload = {
+                nombreReto: nombreReto,
+                puntos: parseInt(puntosReto, 10),
+                alumnos: alumnosSeleccionados
+            };
+
+            try {
+                // Petición POST usando 'no-cors' para evitar restricciones del navegador al enviar a Google Apps Script
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // Despliegue de la ventana emergente/modal de éxito
+                mostrarModalExito(alumnosSeleccionados.length);
+
+            } catch (error) {
+                console.error("Error al inyectar puntos:", error);
+                alert("Ocurrió un inconveniente al comunicarse con la base de datos de Google Sheets. Verifica los registros.");
+                btnEnviarPuntos.disabled = false;
+                btnEnviarPuntos.textContent = "Inyectar Puntos Masivamente";
+            }
+        });
+
+        // 6. Control de Ventana de Confirmación Estilizada
+        function mostrarModalExito(cantidadAlumnos) {
+            modalMensaje.textContent = "Puntos agregados exitosamente a " + cantidadAlumnos + " alumnos";
+            modalExito.classList.remove('hidden');
+            
+            // Forzar reflow para animación CSS
+            setTimeout(() => {
+                modalExito.classList.remove('opacity-0');
+                modalExito.querySelector('div').classList.remove('scale-95');
+            }, 50);
+        }
+
+        // Inicializar carga de datos al abrir la página
+        window.addEventListener('DOMContentLoaded', cargarAlumnos);
+    </script>
+</body>
+</html>
